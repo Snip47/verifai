@@ -1,0 +1,2 @@
+model,val_accuracy,val_f1,test_accuracy,test_f1
+Logistic Regression + TF-IDF,0.9926,0.9923,0.9931,0.9928
