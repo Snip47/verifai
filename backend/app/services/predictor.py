@@ -5,15 +5,24 @@ import re
 BASE_DIR   = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 MODELS_DIR = os.path.join(BASE_DIR, "ml", "trained_models")
 
-print(f"Loading model from {MODELS_DIR}...")
+model = None
+tfidf = None
 
-with open(os.path.join(MODELS_DIR, "logreg_model.pkl"), "rb") as f:
-    model = pickle.load(f)
+def load_model():
+    global model, tfidf
+    print(f"Loading model from {MODELS_DIR}...")
+    with open(os.path.join(MODELS_DIR, "logreg_model.pkl"), "rb") as f:
+        model = pickle.load(f)
+    with open(os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl"), "rb") as f:
+        tfidf = pickle.load(f)
+    print("Model loaded ✓")
 
-with open(os.path.join(MODELS_DIR, "tfidf_vectorizer.pkl"), "rb") as f:
-    tfidf = pickle.load(f)
+def reload_model():
+    print("Reloading model with updated weights...")
+    load_model()
+    print("Model reloaded ✓")
 
-print("Model loaded ✓")
+load_model()
 
 def clean_text(text: str) -> str:
     if not isinstance(text, str):
@@ -30,16 +39,14 @@ def predict(text: str) -> dict:
     vec      = tfidf.transform([cleaned])
     pred     = model.predict(vec)[0]
     proba    = model.predict_proba(vec)[0]
-
     label      = "REAL" if pred == 1 else "FAKE"
     confidence = round(float(proba[pred]) * 100, 2)
     fake_score = round(float(proba[0]) * 100, 2)
     real_score = round(float(proba[1]) * 100, 2)
-
     return {
-        "prediction": label,
-        "confidence": confidence,
-        "fake_score": fake_score,
-        "real_score": real_score,
+        "prediction":      label,
+        "confidence":      confidence,
+        "fake_score":      fake_score,
+        "real_score":      real_score,
         "cleaned_content": cleaned[:500]
     }
