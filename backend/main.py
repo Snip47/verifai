@@ -30,6 +30,16 @@ app.add_middleware(
 
 app.include_router(router, prefix="/api")
 
+# Debug endpoint to check environment variables
+@app.get("/api/debug/env")
+def debug_env():
+    return {
+        "NEWS_API_KEY": "***" + os.getenv("NEWS_API_KEY", "NOT SET")[-10:] if os.getenv("NEWS_API_KEY") else "NOT SET",
+        "DATABASE_URL": "SET" if os.getenv("DATABASE_URL") else "NOT SET",
+        "PYTHONUNBUFFERED": os.getenv("PYTHONUNBUFFERED", "NOT SET"),
+        "FRONTEND_URL": os.getenv("FRONTEND_URL", "NOT SET")
+    }
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
