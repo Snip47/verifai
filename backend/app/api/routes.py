@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from typing import Optional
@@ -106,7 +106,7 @@ def delete_history_item(item_id: int, db: Session = Depends(get_db)):
     return {"message": "Deleted successfully"}
 
 @router.get("/news")
-def get_news(query: str = "latest", page_size: int = 10):
+def get_news(query: str = Query("latest"), page_size: int = Query(10)):
     result = fetch_news(query=query, page_size=page_size)
     if not result["success"]:
         raise HTTPException(status_code=500, detail=result["error"])
